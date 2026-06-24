@@ -5,19 +5,19 @@
 
       Insert  ▸  Embed  ▸  Embed code
 
-  Before pasting:
-    1. Replace  MENU_PAGE_URL  with the public URL of menu/index.html
-       (GitHub Pages / Netlify / Google Drive HTML host).
-       Do NOT use the Apps Script Web App URL directly — Google Sites
-       iframes block Google's own *.googleusercontent.com endpoints.
+  The iframe URL is already set to the live GitHub Pages deployment:
+    https://samawal.github.io/qahwa-menu/menu/
 
-  If your host serves the page over HTTPS, no further changes are
-  needed. If you serve from a custom domain, make sure CORS is open
-  (GitHub Pages / Netlify do this by default).
+  No further edits needed. The page loads fresh menu data from the
+  Apps Script Web App on every visit and auto-refreshes every 5
+  minutes for kiosk use.
+
+  If your host serves over HTTPS and CORS is open (GitHub Pages /
+  Netlify do this by default), no extra setup is required.
 -->
 
 <iframe
-  src="https://MENU_PAGE_URL/"
+  src="https://samawal.github.io/qahwa-menu/menu/"
   width="100%"
   height="1600"
   frameborder="0"
