@@ -1,0 +1,20 @@
+Key,Value
+brand.name,Qahwa Plus
+brand.nameAr,قهوة+
+brand.tagline,Taste the Difference
+brand.taglineAr,ذوق الفرق
+brand.location,Sweida, Syria
+brand.landmark,Al Amer Tower
+brand.phone,
+brand.instagram,Qahwaa.plus
+currency.code,SYP
+currency.symbol,ل.س
+currency.suffix,true
+tab.order,"مشروبات ساخنة, مشروبات باردة, الكوكتيل والفواكه, بارد كيك, وافل, كريب, حلا و سناك"
+tab.alias.مشروبات ساخنة,Hot Drinks
+tab.alias.مشروبات باردة,Cold Drinks
+tab.alias.الكوكتيل والفواكه,Cocktails & Fruits
+tab.alias.بارد كيك,Cold Cakes
+tab.alias.وافل,Waffles
+tab.alias.كريب,Crêpes
+tab.alias.حلا و سناك,Sweets & Snacks

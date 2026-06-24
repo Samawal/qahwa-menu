@@ -1,29 +1,92 @@
-Qahwa Plus — Google Sheet template
-==================================
+Qahwa Plus — Google Sheet template (dynamic)
+=============================================
 
-This folder contains ONE CSV per Sheet tab. To recreate the workbook
-in Google Sheets:
+This folder holds CSV imports that pre-populate the Qahwa Plus Google
+Sheet. The Apps Script (apps-script/Code.gs) discovers menu categories
+AUTOMATICALLY — no more hard-coded list of tab names. To customise the
+menu, just edit the Sheet.
+
+How to build the Sheet from scratch
+-----------------------------------
 
   1. Create a new Google Sheet (sheets.new).
-  2. For each CSV file below, add a tab whose name EXACTLY matches
-     the Arabic category name (the file name without ".csv"), then
-     File > Import > Upload the matching CSV. When importing:
-        - "Import location": Replace current sheet
-        - "Separator type": Comma
-        - "Convert text to numbers...": ON (so prices stay numeric)
-        - Tick "Do not convert text that starts with..." if prompted
-  3. Repeat until all 7 tabs exist with the right names.
-  4. In each tab, the first row is the header. Freeze row 1
-     (View > Freeze > 1 row).
+  2. Run the Apps Script bootstrap function once:
 
-Alternatively, open `bootstrap.js` and run the included
-`bootstrapSheet()` function inside the Apps Script editor — it
-creates all 7 tabs with headers and a few sample rows automatically.
+       Extensions ▸ Apps Script ▸ select bootstrapSheet ▸ Run
 
-Sheet column order (do not reorder):
-  A: ItemArabic
-  B: ItemEnglish   (optional)
-  C: Price         (number, no symbols — type 15000 not "15,000 ل.س")
-  D: Description   (optional)
-  E: Available     (TRUE / FALSE  — empty is treated as TRUE)
-  F: Tag           (جديد | الأكثر طلباً | موسمي — or blank)
+     This creates a "Settings" tab + seven sample category tabs in
+     one shot. Approve the permissions prompt on first run.
+
+  3. Customise "Settings" to taste — see settings.csv for the default
+     contents and the docs in apps-script/Code.gs for every supported
+     key.
+  4. Drop your items into each category tab (or import the matching
+     CSV from this folder).
+
+How tab discovery works
+-----------------------
+
+  * The "Settings" tab is skipped (it's configuration, not a menu).
+  * Any other tab whose first row contains an ItemArabic or ItemEnglish
+     column header is treated as a menu category.
+  * Tab order is taken from the `tab.order` row in Settings; if not
+     set, tabs appear in their natural left-to-right Sheet order.
+  * Hidden helper tabs (names starting with `_` or exactly "template")
+     are skipped.
+  * Tabs without a recognised item-name column are skipped.
+
+How column mapping works
+------------------------
+
+  The script reads the FIRST ROW of every tab and matches column
+  headers by name (Arabic or English), so the client can reorder or
+  drop columns without breaking the menu.
+
+  Header strings recognised (case-insensitive, Arabic-alef normalised):
+
+     itemAr      ItemArabic | Arabic | Ar | الاسم | العربي | اسم | الصنف
+     itemEn      ItemEnglish | English | En | الانجليزي | بالإنجليزي
+     price       Price | السعر | سعر
+     description Description | Desc | الوصف | وصف
+     available   Available | متوفر | متاح | التوفر
+     tag         Tag | الوسم | وسم
+
+  Columns not in this list are ignored. Missing columns simply mean
+  the corresponding field is empty (e.g. drop the Description column
+  entirely and descriptions will be blank — no error).
+
+How English labels work
+-----------------------
+
+  Each tab's English label is resolved in this order:
+
+     1. Explicit `tab.alias.<ArabicName>` row in Settings
+     2. Built-in default table in apps-script/Code.gs
+     3. Substring matching against common Arabic menu stems
+        (e.g. tabs containing "وافل" → "Waffles")
+     4. Empty string
+
+  To add a new category with a clean English label, add a row to the
+  Settings tab like:
+
+     tab.alias.عصائر طازجة,    Fresh Juices
+
+CSV files in this folder
+------------------------
+
+  settings.csv    Two columns: Key, Value. Goes into the "Settings"
+                  tab. The tab.order value is comma-separated and
+                  MUST stay quoted when imported.
+
+  hot-drinks.csv, cold-drinks.csv, cocktails-fruits.csv, cold-cakes.csv,
+  waffles.csv, crepes.csv, sweets-snacks.csv
+                  One CSV per category tab. Headers in row 1, items
+                  from row 2. Prices are plain numbers (no currency
+                  symbol). Column order can be anything — Apps Script
+                  matches by header name.
+
+Importing a CSV into Google Sheets
+----------------------------------
+
+  File ▸ Import ▸ Upload ▸ pick the CSV ▸ "Replace current sheet" ▸
+  Separator: Comma ▸ "Convert text to numbers, dates, and formulas" ON.
