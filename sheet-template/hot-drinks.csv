@@ -1,0 +1,14 @@
+ItemArabic,ItemEnglish,Price,Description,Available,Tag
+قهوة اسبريسو سنقل,Espresso Single,5000,,TRUE,
+قهوة اسبريسو دبل,Espresso Double,7000,,TRUE,
+قهوة امريكانو,Americano,7000,,TRUE,
+سبانش لاتيه ساخن,Spanish Latte (Hot),12000,,TRUE,الأكثر طلباً
+كابتشينو,Cappuccino,10000,,TRUE,
+لاتيه,Latte,10000,,TRUE,
+فلات وايت,Flat White,11000,,TRUE,
+موكا ساخن,Hot Mocha,12000,,TRUE,
+هوت شوكليت,Hot Chocolate,10000,,TRUE,
+شاي احمر,Red Tea,5000,,TRUE,
+شاي اخضر,Green Tea,5000,,TRUE,
+كافيه لاتيه بنكهات مختلفة,Flavored Latte,11000,,TRUE,
+قهوة اليوم,Filter Coffee,8000,فلتر أو قهوة امريكية,TRUE,
