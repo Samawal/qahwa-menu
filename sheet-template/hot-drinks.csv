@@ -1,14 +1,14 @@
-ItemArabic,ItemEnglish,Price,Description,Available,Tag
-قهوة اسبريسو سنقل,Espresso Single,5000,,TRUE,
-قهوة اسبريسو دبل,Espresso Double,7000,,TRUE,
-قهوة امريكانو,Americano,7000,,TRUE,
-سبانش لاتيه ساخن,Spanish Latte (Hot),12000,,TRUE,الأكثر طلباً
-كابتشينو,Cappuccino,10000,,TRUE,
-لاتيه,Latte,10000,,TRUE,
-فلات وايت,Flat White,11000,,TRUE,
-موكا ساخن,Hot Mocha,12000,,TRUE,
-هوت شوكليت,Hot Chocolate,10000,,TRUE,
-شاي احمر,Red Tea,5000,,TRUE,
-شاي اخضر,Green Tea,5000,,TRUE,
-كافيه لاتيه بنكهات مختلفة,Flavored Latte,11000,,TRUE,
-قهوة اليوم,Filter Coffee,8000,فلتر أو قهوة امريكية,TRUE,
+ItemArabic,ItemEnglish,Price,Description,ProductKey,Available,Tag
+قهوة اسبريسو سنقل,Espresso Single,5000,,espresso,true,
+قهوة اسبريسو دبل,Espresso Double,7000,,espresso,true,
+قهوة امريكانو,Americano,7000,,espresso,true,
+سبانش لاتيه ساخن,Spanish Latte (Hot),12000,condensed milk,spanish-latte,true,الأكثر طلباً
+كابتشينو,Cappuccino,10000,espresso + whipped milk + cocoa,cappuccino,true,الأكثر طلباً
+لاتيه,Latte,10000,,latte,true,
+فلات وايت,Flat White,11000,,cappuccino,true,
+موكا ساخن,Hot Mocha,12000,chocolate + espresso,mocha,true,
+هوت شوكليت,Hot Chocolate,10000,,hot-chocolate,true,
+شاي احمر,Red Tea,5000,,tea,true,
+شاي اخضر,Green Tea,5000,,tea,true,
+كافيه لاتيه بنكهات مختلفة,Flavored Latte,11000,,latte,true,
+قهوة اليوم,Filter Coffee,8000,filter / american,espresso,true,

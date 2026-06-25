@@ -59,6 +59,7 @@ var COLUMN_ALIASES = {
   itemEn:      ['ItemEnglish', 'English', 'En', 'الانجليزي', 'الإنجليزي', 'بالإنجليزي'],
   price:       ['Price', 'السعر', 'سعر'],
   description: ['Description', 'Desc', 'الوصف', 'وصف'],
+  productKey:  ['ProductKey', 'Product', 'Key', 'مفتاح', 'كود المنتج', 'المنتج'],
   image:       ['Image', 'Img', 'Photo', 'صورة', 'الصورة', 'رابط الصورة', 'URL'],
   available:   ['Available', 'متوفر', 'متاح', 'التوفر'],
   tag:         ['Tag', 'الوسم', 'وسم']
@@ -161,27 +162,24 @@ function readSettings(ss) {
 function discoverMenuTabs(ss, settings) {
   var all = ss.getSheets();
 
-  // Identify the index of the Settings tab so we can skip it.
-  var settingsIndex = -1;
-  for (var s = 0; s < all.length; s++) {
-    if (all[s].getName() === 'Settings') { settingsIndex = s; break; }
-  }
-
-  // Collect candidate tabs (skip Settings, skip blank sheets, skip
-  // single-cell template/helper sheets).
+  // Tabs we never treat as menu categories.
+  var SKIP_NAMES = { Settings: 1, IMAGES: 1, Products: 1 };
   var candidates = [];
   for (var i = 0; i < all.length; i++) {
-    if (i === settingsIndex) continue;
     var sh  = all[i];
     var name = sh.getName();
     if (!name) continue;
-    if (name.charAt(0) === '_') continue;       // _scratch, _template, ...
+    if (SKIP_NAMES[name]) continue;
+    if (name.charAt(0) === '_') continue;
     if (/^template$/i.test(name)) continue;
-    if (sh.getLastRow() < 2) continue;           // empty / header-only sheets
+    if (sh.getLastRow() < 2) continue;
+    if (!looksLikeMenuTab(sh)) continue;          // header must include item-name column
     candidates.push(sh);
   }
 
-  // Build category objects.
+  // Build category wrappers with English label resolved now so we can
+  // order them. We don't read items yet — order matters, items come
+  // after.
   var cats = candidates.map(function (sh) {
     return {
       name:   sh.getName(),
@@ -194,7 +192,6 @@ function discoverMenuTabs(ss, settings) {
   // then everything else in natural workbook order.
   var byName = {};
   cats.forEach(function (c) { byName[c.name] = c; });
-
   var ordered = [];
   var seen    = {};
   (settings.tabOrder || []).forEach(function (n) {
@@ -207,9 +204,11 @@ function discoverMenuTabs(ss, settings) {
     if (!seen[c.name]) ordered.push(c);
   });
 
-  // Read items for each tab.
+  // Read items for each tab. Pass the products lookup so per-row
+  // ProductKey columns can resolve to an image via the Products tab.
+  var products = readProducts(ss);
   ordered.forEach(function (c) {
-    c.items = readItems(c.sheet);
+    c.items = readItems(c.sheet, products);
   });
 
   return ordered;
@@ -259,10 +258,11 @@ function resolveLabel(name, settings) {
  *    then walks the data rows producing structured items.
  * ============================================================ */
 
-function readItems(sheet) {
+function readItems(sheet, products) {
   var lastCol = sheet.getLastColumn();
   var lastRow = sheet.getLastRow();
   if (lastCol < 1 || lastRow < 2) return [];
+  products = products || {};
 
   var headerRow = sheet.getRange(1, 1, 1, lastCol).getValues()[0];
   var fieldMap  = mapHeaders(headerRow);
@@ -279,12 +279,25 @@ function readItems(sheet) {
     var nameEn = pick(row, fieldMap.itemEn);
     if (!nameAr && !nameEn) continue;          // skip blank rows
 
+    /* Image resolution order:
+     *   1. Per-row Image cell  (one-off overrides win)
+   *   2. ProductKey -> Products[productKey].image  (shared photo)
+   *   3. Empty string         (page shows Q+ placeholder)
+   */
+    var image = normaliseImage(pick(row, fieldMap.image));
+    if (!image) {
+      var key = pick(row, fieldMap.productKey);
+      if (key && products[key] && products[key].image) {
+        image = products[key].image;
+      }
+    }
+
     items.push({
       itemAr:      nameAr,
       itemEn:      nameEn,
       price:       toNumber(pick(row, fieldMap.price)),
       description: pick(row, fieldMap.description),
-      image:       normaliseImage(pick(row, fieldMap.image)),
+      image:       image,
       available:   toBool(pick(row, fieldMap.available)),
       tag:         pick(row, fieldMap.tag)
     });
@@ -293,10 +306,64 @@ function readItems(sheet) {
   return items;
 }
 
+/* readProducts: read the optional "Products" tab into a lookup map.
+ *   Columns (header-driven, any order):
+ *     - ProductKey / Key / Product / مفتاح  -> the join key
+ *     - Image / URL / Photo / صورة          -> image URL
+ *     - Caption / Note / وصف / ملاحظة       -> optional caption (unused by page today,
+ *                                               but kept for future use)
+ * Returns: { productKey: { image, caption } }  — empty object if no Products tab.
+ */
+function readProducts(ss) {
+  var out = {};
+  var sh = ss.getSheetByName('Products');
+  if (!sh || sh.getLastRow() < 2) return out;
+  var lastCol = sh.getLastColumn();
+  var header = sh.getRange(1, 1, 1, lastCol).getValues()[0];
+  var keyCol = -1, imgCol = -1, capCol = -1;
+  for (var c = 0; c < header.length; c++) {
+    var h = normaliseHeader(header[c]);
+    if (keyCol === -1 && (h === normaliseHeader('ProductKey') || h === normaliseHeader('Key') || h === normaliseHeader('Product'))) keyCol = c;
+    if (imgCol === -1 && (h === normaliseHeader('Image') || h === normaliseHeader('URL') || h === normaliseHeader('Photo') || h === normaliseHeader('صورة'))) imgCol = c;
+    if (capCol === -1 && (h === normaliseHeader('Caption') || h === normaliseHeader('Note') || h === normaliseHeader('وصف') || h === normaliseHeader('ملاحظة'))) capCol = c;
+  }
+  if (keyCol === -1 || imgCol === -1) return out;
+  var rows = sh.getRange(2, 1, sh.getLastRow() - 1, lastCol).getValues();
+  rows.forEach(function (r) {
+    var k = String(r[keyCol] || '').trim();
+    if (!k) return;
+    out[k] = {
+      image:   normaliseImage(r[imgCol]),
+      caption: capCol >= 0 ? String(r[capCol] || '').trim() : ''
+    };
+  });
+  return out;
+}
+
+/* looksLikeMenuTab: true if the first row contains at least one
+ * recognised item-name header (itemAr or itemEn). Used to filter
+ * out reference / config tabs (IMAGES, Products, etc.) that might
+ * share a name pattern with menu tabs.
+ */
+function looksLikeMenuTab(sheet) {
+  var lastCol = sheet.getLastColumn();
+  if (lastCol < 1) return false;
+  var headerRow = sheet.getRange(1, 1, 1, lastCol).getValues()[0];
+  for (var i = 0; i < headerRow.length; i++) {
+    var h = normaliseHeader(headerRow[i]);
+    if (!h) continue;
+    var aliases = COLUMN_ALIASES.itemAr.concat(COLUMN_ALIASES.itemEn);
+    for (var a = 0; a < aliases.length; a++) {
+      if (normaliseHeader(aliases[a]) === h) return true;
+    }
+  }
+  return false;
+}
+
 function mapHeaders(headerRow) {
   var map = {
     itemAr: -1, itemEn: -1, price: -1,
-    description: -1, image: -1, available: -1, tag: -1
+    description: -1, productKey: -1, image: -1, available: -1, tag: -1
   };
   for (var field in COLUMN_ALIASES) {
     var aliases = COLUMN_ALIASES[field];
@@ -494,5 +561,30 @@ function bootstrapSheet() {
     // Walk past any tab the bootstrap creates later — put IMAGES first.
     ss.setActiveSheet(im);
     ss.moveActiveSheet(1);
+  }
+
+  // ---- Products tab (the new image-catalog workflow) ---------------
+  // Recommended. Each row is a single product (not a menu item); menu
+  // rows reference the product by key in their ProductKey column. This
+  // way one photo can be reused across multiple menu items without
+  // pasting the same URL on every row.
+  var productsName = 'Products';
+  if (!ss.getSheetByName(productsName)) {
+    var pr = ss.insertSheet(productsName);
+    pr.getRange(1, 1, 1, 3).setValues([['ProductKey', 'Image', 'Caption']]).setFontWeight('bold');
+    pr.setFrozenRows(1);
+    pr.setColumnWidth(1, 200);
+    pr.setColumnWidth(2, 480);
+    pr.setColumnWidth(3, 240);
+    var sampleProducts = [
+      ['cappuccino',   '', 'espresso + whipped milk, cocoa dusting'],
+      ['spanish-latte','', 'espresso + condensed milk'],
+      ['iced-latte',   '', 'tall glass'],
+      ['mocha',        '', 'chocolate + espresso + milk'],
+      ['cheesecake',   '', 'classic NY slice'],
+      ['waffle',       '', 'liege-style, pearl sugar'],
+      ['crepe',        '', 'folded, dusting of sugar']
+    ];
+    pr.getRange(2, 1, sampleProducts.length, 3).setValues(sampleProducts);
   }
 }

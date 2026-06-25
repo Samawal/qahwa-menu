@@ -27,15 +27,40 @@ How tab discovery works
 -----------------------
 
 
-The IMAGES reference tab
-------------------------
+The Products tab (image catalog) — primary workflow
+---------------------------------------------------
 
-  Running bootstrapSheet() once creates an "IMAGES" tab with two
-  columns (Topic, Tip) and 9 rows of guidance on photo size, format,
-  aspect ratio, hosting options, Drive URL handling, naming, and what
-  NOT to upload. Open it once and you've seen the whole spec — no need
-  to dig through docs. The page is also fully functional with no Image
-  column at all (the Q+ brand mark acts as placeholder for every item).
+  After running bootstrapSheet() you have a "Products" tab with 3
+  columns:
+
+    ProductKey | Image                       | Caption (optional)
+    espresso   | https://drive.google.com/.. | single shot, ceramic cup
+    cappuccino | https://...                 | topped with cocoa
+    latte      | https://...                 | tall glass
+
+  Each row is ONE product (one photo). Menu items reference the
+  product by key in their ProductKey column. This means:
+
+    - One photo is reused by every menu item that should show it
+      (e.g. كابتشينو and كابتشينو دبل both use "cappuccino")
+    - Updating the photo in one place updates the whole menu
+    - You do NOT need an Image column on the menu tabs anymore
+
+  Resolution order when rendering a menu item:
+    1. The menu row's own Image cell (one-off override)
+    2. The ProductKey -> Products[productKey].image lookup
+    3. Empty -> the page shows the Q+ brand placeholder
+
+  If a menu item has no ProductKey and no Image, it just shows the
+  placeholder. That is fine — fill in keys as photos become available.
+
+The IMAGES reference tab (photo spec)
+---------------------------------------
+
+  bootstrapSheet() also creates an "IMAGES" tab with two columns
+  (Topic, Tip) and 9 rows of guidance on photo size, format, aspect
+  ratio, hosting options, Drive URL handling, naming, and what NOT
+  to upload. Open it once and you have seen the whole spec.
 
 
   * The "Settings" tab is skipped (it's configuration, not a menu).
