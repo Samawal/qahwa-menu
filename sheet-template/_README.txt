@@ -37,9 +37,14 @@ Hiding tabs via Settings (tab.visible.<name>)
   False-ish values (case-insensitive) hide the tab:
     false / no / off / 0 / x / hide / hidden / invisible
 
-  Anything else (or no row at all) keeps the tab visible. The
-  Products and IMAGES tabs are ALWAYS reference tabs and never
-  appear in the menu, regardless of this setting.
+  Default behaviour: a tab with NO tab.visible.<name> row in the
+  Settings tab is VISIBLE (default = true). You only add a row
+  when you want to hide a tab. This makes the system safe to drop
+  into an existing Sheet: nothing disappears until you explicitly
+  hide it.
+
+  The Products and IMAGES tabs are ALWAYS reference tabs and
+  never appear in the menu, regardless of this setting.
 
 How tab discovery works
 -----------------------
