@@ -5,10 +5,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#4ABFB5" />
   <title>قهوة+ — Qahwa Plus · القائمة الرقمية</title>
+  <meta name="description" content="قهوة+ · Qahwa Plus live digital menu — drinks, desserts, waffles, crêpes. Located in Al Amer Tower, Sweida, Syria." />
+  <meta name="theme-color" content="#4ABFB5" />
+
+  <!-- Open Graph / link preview -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="قهوة+ · Qahwa Plus Menu" />
+  <meta property="og:description" content="Live digital menu for Qahwa Plus — drinks, desserts, waffles, crêpes. Located in Al Amer Tower, Sweida, Syria." />
+  <meta property="og:locale" content="ar_SY" />
+  <meta property="og:locale:alternate" content="en_US" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="قهوة+ · Qahwa Plus Menu" />
+  <meta name="twitter:description" content="Live digital menu for Qahwa Plus — drinks, desserts, waffles, crêpes. Located in Al Amer Tower, Sweida, Syria." />
+
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Cormorant+Garamond:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Cormorant+Garamond:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
 
   <style>
     :root {
@@ -27,10 +42,17 @@
 
       --radius-card: 14px;
       --radius-pill: 999px;
+      /* Tinted overlays lifted from one-off rgba() literals.
+         Use these for future gradients/effects — keeps the design
+         system in one place. */
+      --tint-amber-18:   rgba(232,167,53,.18);
+      --tint-teal-16:    rgba(74,191,181,.16);
+      --tint-teal-08:    rgba(74,191,181,.08);
+      --tint-gold-16:    rgba(176,125,46,.16);
       --shadow-soft: 0 1px 2px rgba(16,54,52,.06), 0 6px 18px rgba(16,54,52,.06);
       --shadow-pop:  0 2px 6px rgba(16,54,52,.10), 0 18px 40px -10px rgba(16,54,52,.18);
 
-      --serif: "Cormorant Garamond", "Playfair Display", "Times New Roman", serif;
+      --serif: "Cormorant Garamond", "Times New Roman", serif;
       --arabic: "Cairo", "Noto Naskh Arabic", "Segoe UI", system-ui, sans-serif;
     }
 
@@ -107,6 +129,13 @@
       from { transform: translateY(-6%) scaleX(1.02); }
       to   { transform: translateY(-2%) scaleX(1.02); }
     }
+    @media (prefers-reduced-motion: reduce) {
+      .hero .watermark .wm { animation: none; }
+      .card .card__media img { transition: none; }
+      .card:hover { transform: none; }
+      .card:hover .card__media img { transform: none; }
+      .refresh-btn.spin .glyph { animation: none; }
+    }
     .hero .inner { position: relative; z-index: 2; }
 
     .brand-lockup {
@@ -125,7 +154,18 @@
     .brand-lockup .brand-mark-logo .teal {
       color: #CFF6F2;                       /* soft cream-teal for the icon strokes on the dark teal hero */
     }
-        /* The wordmark + subtitle are baked into Q+.svg now. */
+    
+    /* --- Accessibility: keyboard focus rings ------------------------ */
+    :focus-visible {
+      outline: 2px solid var(--qahwa-gold);
+      outline-offset: 2px;
+      border-radius: 4px;
+    }
+    .tab:focus-visible {
+      outline-offset: -2px;
+    }
+
+    /* The wordmark + subtitle are baked into Q+.svg now. */
 
     .tagline {
       font-family: var(--serif);
@@ -302,7 +342,7 @@
       aspect-ratio: 4 / 3;                 /* consistent tile regardless of source */
       overflow: hidden;
       background:
-        linear-gradient(135deg, rgba(232,167,53,.18) 0%, rgba(74,191,181,.16) 100%);
+        linear-gradient(135deg, var(--tint-amber-18) 0%, var(--tint-teal-16) 100%);
     }
     .card__media img {
       width: 100%;
@@ -337,7 +377,7 @@
     /* if a real <img> errors out, swap its container to the placeholder look */
     .card__media.img-error {
       background:
-        linear-gradient(135deg, rgba(232,167,53,.18) 0%, rgba(74,191,181,.16) 100%);
+        linear-gradient(135deg, var(--tint-amber-18) 0%, var(--tint-teal-16) 100%);
     }
     .card__media.img-error::before {
       content: "";
@@ -409,7 +449,7 @@
     }
     .tag.new      { background: rgba(74,191,181,.14); color: var(--qahwa-teal); }
     .tag.best     { background: rgba(232,167,53,.18); color: #A66A12; }
-    .tag.seasonal { background: rgba(176,125,46,.16); color: var(--qahwa-gold); }
+    .tag.seasonal { background: var(--tint-gold-16); color: var(--qahwa-gold); }
     .tag::before {
       content: ""; width: 6px; height: 6px; border-radius: 50%;
       background: currentColor;
@@ -951,8 +991,8 @@
     c.setAttribute("data-unavailable", it.available === false ? "true" : "false");
 
     var nameAR  = escapeHTML(it.itemAr || "");
-    var nameEN  = it.itemEn      ? '<div class="name-en">' + escapeHTML(it.itemEn) + '</div>' : "";
-    var desc    = it.description ? '<div class="desc">'    + escapeHTML(it.description) + '</div>' : "";
+    var nameEn  = it.itemEn ? '<div class="name-en" lang="en" dir="ltr">' + escapeHTML(it.itemEn) + '</div>' : "";
+    var desc    = it.description ? '<div class="desc" lang="en" dir="ltr">' + escapeHTML(it.description) + '</div>' : "";
 
     var tagHTML = "";
     if (it.tag) {
@@ -975,16 +1015,21 @@
       mediaHTML = '<div class="card__media placeholder">' + PH_HTML + '</div>';
     }
 
+    /* Name EN, description, and price are wrapped in lang="en" so
+     * screen readers pronounce them with English phonology rules
+     * and the browser uses English-specific typography (lining figures,
+     * consistent punctuation). Visually identical to before.
+     */
     c.innerHTML =
       mediaHTML +
       '<div class="card__body">' +
         '<div class="row">' +
           '<div>' +
             '<div class="name-ar">' + nameAR + '</div>' +
-            nameEN +
-            desc +
+            (nameEn ? '<div class="name-en" lang="en" dir="ltr">' + nameEn + '</div>' : "") +
+            (desc   ? '<div class="desc"   lang="en" dir="ltr">' + desc   + '</div>' : "") +
           '</div>' +
-          '<div class="price">' + formatPrice(it.price) + '</div>' +
+          '<div class="price" lang="en" dir="ltr">' + formatPrice(it.price) + '</div>' +
         '</div>' +
         tagHTML +
       '</div>';

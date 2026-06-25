@@ -1,7 +1,7 @@
-ItemArabic,ItemEnglish,Price,Description,Available,Tag
-تشيز كيك فراولة,Strawberry Cheesecake,9000,,TRUE,
-تشيز كيك كراميل,Caramel Cheesecake,9000,,TRUE,
-تشيز كيك اوريو,Oreo Cheesecake,9000,,TRUE,
-سنكرز كيك,Snickers Cake,9000,,TRUE,
-مالتيزرز كيك,Maltesers Cake,9000,,TRUE,
-برواني شوكليت,Chocolate Brownie,8000,,TRUE,
+ItemArabic,ItemEnglish,Price,Description,ProductKey,Available,Tag
+تشيز كيك فراولة,Strawberry Cheesecake,9000,,,TRUE,
+تشيز كيك كراميل,Caramel Cheesecake,9000,,,TRUE,
+تشيز كيك اوريو,Oreo Cheesecake,9000,,,TRUE,
+سنكرز كيك,Snickers Cake,9000,,,TRUE,
+مالتيزرز كيك,Maltesers Cake,9000,,,TRUE,
+برواني شوكليت,Chocolate Brownie,8000,,,TRUE,

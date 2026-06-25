@@ -18,9 +18,8 @@ auto-updating digital menu embedded in Google Sites.
                                 └───────────────┘
 ```
 
-Total time: 20–30 minutes. Only steps **3**, **5**, and **6**
-have to be repeated when the menu changes — and step 3 is the
-*only* one the client has to do day-to-day (edit the Sheet).
+Total time: 20–30 minutes for a fresh deployment. After that,
+only **editing the Sheet** is needed to change the menu.
 
 ---
 
@@ -28,54 +27,30 @@ have to be repeated when the menu changes — and step 3 is the
 
 1. Go to <https://sheets.new> and create a blank workbook.
 2. Rename it **Qahwa Plus — Menu**.
-3. Create **7 tabs** (one per category) using these EXACT names
-   (case-sensitive, including the leading Arabic characters):
+3. Open **Extensions ▸ Apps Script**.
+4. Delete the placeholder `function myFunction() {}` in `Code.gs`.
+5. Copy the full contents of `apps-script/Code.gs` from this repo into
+   the editor. **Save** (💾) and name the project **Qahwa Plus Menu API**.
+6. Back in the Sheet, in the Apps Script editor select `bootstrapSheet`
+   from the function dropdown and press **Run**. Approve the permissions
+   prompt on first run.
+7. The Sheet now has 10 tabs in this order:
+   - `Settings` — runtime config (brand, currency, tab order, aliases,
+     visibility)
+   - `IMAGES` — photo spec (size, format, hosting, Drive tips)
+   - `Products` — image catalog (one row per photo, referenced by key)
+   - 7 category tabs — menu items
+8. To bulk-populate menu items: **File ▸ Import ▸ Upload** the matching
+   CSV from `sheet-template/`. **Separator: Comma**, **"Replace current
+   sheet"**, **"Convert text to numbers"** ON.
 
-   | # | Tab name (Arabic)    | English label         |
-   |---|----------------------|-----------------------|
-   | 1 | مشروبات ساخنة        | Hot Drinks            |
-   | 2 | مشروبات باردة        | Cold Drinks           |
-   | 3 | الكوكتيل والفواكه    | Cocktails & Fruits    |
-   | 4 | بارد كيك             | Cold Cakes            |
-   | 5 | وافل                 | Waffles               |
-   | 6 | كريب                 | Crêpes                |
-   | 7 | حلا و سناك           | Sweets & Snacks       |
-
-4. In each tab, put these headers in row 1:
-
-   | A            | B           | C    | D           | E         | F   |
-   |--------------|-------------|------|-------------|-----------|-----|
-   | `ItemArabic` | `ItemEnglish` | `Price` | `Description` | `Available` | `Tag` |
-
-5. Freeze row 1 in every tab: **View ▸ Freeze ▸ 1 row**.
-
-> **Tip — fast start:** instead of typing everything by hand, open
-> `sheet-template/_README.txt` for two ways to bulk-import the sample
-> menu: (a) the per-tab CSV files in that folder, or (b) running
-> `bootstrapSheet()` from the Apps Script editor (next step).
+> The Sheet is now the source of truth. The page reads from it on every
+> load. **No redeploy needed** when you change prices, descriptions,
+> availability, photos, or categories.
 
 ---
 
-## 2. Attach the Apps Script
-
-1. In the Sheet, click **Extensions ▸ Apps Script**.
-2. Delete the placeholder `function myFunction() {}` in `Code.gs`.
-3. Open `apps-script/Code.gs` from this repo, copy its full contents,
-   and paste it into the editor.
-4. **Save** (💾) and name the project `Qahwa Plus Menu API`.
-5. *(Optional but recommended)* run the function
-   `bootstrapSheet` once: select it from the toolbar dropdown and
-   press **Run**. This will create any missing tabs and a couple of
-   sample rows. (Approve the permissions prompt on first run.)
-
-> **Currency / phone / instagram** live at the top of `Code.gs` —
-> edit `payload.brand.phone` and the `currency` block before you
-> deploy if needed. SYP / ل.س is the default; change `code: 'USD'`
-> to switch to dollars.
-
----
-
-## 3. Deploy the Apps Script as a Web App
+## 2. Deploy the Apps Script as a Web App
 
 1. In the Apps Script editor: **Deploy ▸ New deployment**.
 2. Click the gear icon ⚙ next to "Select type" and choose **Web app**.
@@ -89,9 +64,25 @@ have to be repeated when the menu changes — and step 3 is the
 5. Test it: open that URL in a browser. You should see JSON like
    `{ "brand": {…}, "currency": {…}, "categories": [ … ] }`.
 
-> If you ever change `Code.gs`, repeat step 3 with
-> **Deploy ▸ Manage deployments ▸ ✏ Edit ▸ Version: New version**
-> — the URL stays the same.
+> If you ever change `Code.gs`, repeat step 1 with **Deploy ▸ Manage
+> deployments ▸ ✏ Edit ▸ Version: New version** — the URL stays the same.
+
+---
+
+## 3. Wire the endpoint into the page
+
+Open `menu/index.html` and find this line near the top of the `<script>`:
+
+```js
+var MENU_ENDPOINT = "https://script.google.com/macros/s/AKfycbx…/exec";
+```
+
+Replace the placeholder with the Web App URL from step 2. The default
+in the repo is already a live URL — only change it if you redeployed
+and got a new one.
+
+Re-deploy: commit + push to GitHub Pages, or re-drop the folder on
+Netlify, depending on your host.
 
 ---
 
@@ -103,16 +94,17 @@ You only need a static host that serves `menu/index.html` over
 ### Option A — GitHub Pages (recommended)
 
 ```bash
-# from the project root
-git init
-git add menu/
-git commit -m "Qahwa Plus menu"
+cd "qahwa-menu"
+git init -b main
+git add .
+git commit -m "Initial menu deploy"
 gh repo create qahwa-menu --public --source=. --push
-# enable Pages: Repo ▸ Settings ▸ Pages ▸ Source: main / menu
+# Then on github.com/qahwa-menu/settings/pages:
+#   Source: "Deploy from a branch"  ·  Branch: main  ·  Folder: / (root)
 ```
 
 Your URL will be:
-`https://<your-github-username>.github.io/qahwa-menu/`
+`https://<your-github-username>.github.io/qahwa-menu/menu/`
 
 ### Option B — Netlify Drop
 
@@ -120,84 +112,131 @@ Your URL will be:
 2. Drag the `menu/` folder onto the page.
 3. Copy the assigned `*.netlify.app` URL.
 
-> **Important:** the page must be served from a public, non-`google.com`
-> domain — Google Sites refuses to embed URLs on Google's own CDN inside
-> an `<iframe>`.
+> The menu must be served from a public, non-Google domain —
+> Google Sites refuses to embed URLs on Google's own CDN inside an
+> `<iframe>`.
 
 ---
 
-## 5. Wire the endpoint into the page
-
-Open `menu/index.html` and find this line near the top of the `<script>`:
-
-```js
-var MENU_ENDPOINT = "PASTE_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE";
-```
-
-Replace the placeholder with the Web App URL from step 3. Re-deploy
-(commit + push to GitHub Pages, or re-drop the folder on Netlify).
-
----
-
-## 6. Embed into Google Sites
+## 5. Embed into Google Sites
 
 1. Open (or create) your Google Site.
 2. On the page you want the menu on: **Insert ▸ Embed ▸ Embed code**.
-3. Open `google-sites-embed.html` and copy the `<iframe>` block.
-4. Paste into the Google Sites embed dialog. Replace
-   `MENU_PAGE_URL` with the public URL from step 4.
-5. Resize the embed to full width and **publish** the site.
+3. Open `google-sites-embed.html` and copy the `<iframe>` block. The URL
+   is already set to the live GitHub Pages deployment.
+4. Paste into the Google Sites embed dialog. Resize to full width and
+   **publish** the site.
 
-You're done 🎉 — edits to the Google Sheet show up on the next page
-load (or every 5 minutes for kiosk mode, set by `AUTO_REFRESH_MS` in
-`menu/index.html`).
+---
+
+## 6. Configure via the Settings tab (no code changes needed)
+
+The Sheet's `Settings` tab controls everything client-facing. Add rows
+as needed:
+
+| Key | Purpose |
+|---|---|
+| `brand.name` | Latin brand name |
+| `brand.nameAr` | Arabic brand name |
+| `brand.tagline` / `brand.taglineAr` | Hero tagline |
+| `brand.location` / `brand.landmark` | Hero meta line |
+| `brand.phone` / `brand.instagram` | Contact info |
+| `currency.code` / `currency.symbol` | e.g. `SYP` + `ل.س` |
+| `currency.suffix` | `true` to render "10,000 ل.س", `false` for "$10,000" |
+| `tab.order` | Comma-separated Arabic tab names in the desired display order |
+| `tab.alias.<ArabicName>` | English label override for that tab |
+| `tab.visible.<ArabicName>` | `false` (or `no` / `off` / `0` / `x`) to hide the tab. Default if absent: **visible**. |
+
+Edit a row, hard-refresh the page → change is live. No redeploy.
 
 ---
 
 ## Updating the menu day-to-day
 
-Only the Google Sheet needs to be touched:
+The Sheet is the source of truth. Edits propagate automatically.
 
-- **Add a row** → new item appears on the next refresh.
-- **Set `Available = FALSE`** → item stays visible but greyed out with
-  a "غير متوفر" label. (Set to `TRUE` or clear the cell to bring it back.)
-- **Add a tag** in column F — keywords are recognised automatically:
-  - `جديد`            → teal "new" pill
-  - `الأكثر طلباً`     → amber "bestseller" pill
-  - `موسمي`           → gold "seasonal" pill
-- **Change price** in column C — number only, e.g. `12000` not `"12,000"`.
+| What you want to do | How |
+|---|---|
+| Add a row | New item appears on the next refresh |
+| Change a price | Type the new number in column C |
+| Mark unavailable | Set column E (`Available`) to `FALSE` — item stays visible but greyed out with "غير متوفر" |
+| Add a tag | `جديد` (teal pill), `الأكثر طلباً` (amber), `موسمي` (gold) |
+| Add a new category | New tab with the right header row → auto-discovered |
+| Rename a category | Rename the tab + add a `tab.alias.<newname>` row in Settings |
+| Reorder categories | Edit `tab.order` in Settings (comma-separated Arabic names) |
+| Hide a category | Add `tab.visible.<name>` = `false` in Settings |
+| Change phone / Instagram | Edit `Settings` — no code change |
+| Change currency | Edit `Settings.currency.code` and `currency.symbol` |
+
+---
+
+## Adding photos
+
+Photos live in the `Products` tab (one row per product):
+
+```
+ProductKey    | Image                         | Caption (optional)
+cappuccino    | https://drive.google.com/..   | topped with cocoa
+spanish-latte | https://...                   |
+```
+
+Then reference from a menu row with the `ProductKey` column:
+
+```
+ItemArabic | Price | ProductKey
+كابتشينو   | 10000 | cappuccino
+فلتر       |  8000 | cappuccino   ← same photo, different menu item
+```
+
+**Resolution order** for an item's image:
+
+1. The menu row's own `Image` cell (rare one-off override)
+2. `Products[<productKey>].image` (the default workflow)
+3. Empty string → page shows the Q+ brand placeholder
+
+See the `IMAGES` tab for size / format / Drive sharing tips.
 
 ---
 
 ## Troubleshooting
 
-| Symptom                                  | Fix |
-|------------------------------------------|-----|
-| Page shows "تعذر تحميل القائمة"          | `MENU_ENDPOINT` is still the placeholder, or the Web App is not deployed as "Anyone". |
-| Empty categories                         | Sheet tab names don't EXACTLY match the Arabic strings in `Code.gs` `CATEGORIES`. Fix the tab name. |
-| Prices show as `0`                       | Column C contains a string (e.g. `12,000 ل.س`). Replace with the raw number `12000`. |
-| Embed shows a blank box on the Site      | The menu URL is on a Google domain or not HTTPS. Re-host on GitHub Pages or Netlify. |
-| Fonts look like the default OS font      | The page can't reach `fonts.googleapis.com`. Pre-bundle the fonts (or accept the system fallback). |
+| Symptom | Fix |
+|---|---|
+| Page shows "تعذر تحميل القائمة" | `MENU_ENDPOINT` placeholder wasn't replaced, or the Web App isn't deployed as "Anyone" |
+| Empty categories | Sheet tab names don't EXACTLY match the Arabic strings used in `Code.gs`. Fix the tab name. |
+| Prices show as `0` | Column C contains a string (e.g. `12,000 ل.س`). Replace with the raw number `12000`. |
+| Embed shows a blank box on the Site | The menu URL is on a Google domain or not HTTPS. Re-host on GitHub Pages or Netlify. |
+| Fonts look like the default OS font | The page can't reach `fonts.googleapis.com`. Accept the system fallback (already declared in `--serif`). |
+| Tab is missing from the menu | A `tab.visible.<name>` row in Settings says `false`. Delete it or change to `true`. |
 
 ---
 
 ## File map
 
 ```
-Qahwa+
+qahwa-menu/
+├── README.md                         ← you are here (repo front page)
+├── SETUP.md                          ← this file
+├── .gitignore
 ├── apps-script/
-│   └── Code.gs             ← paste into Extensions ▸ Apps Script
+│   └── Code.gs                       ← paste into Extensions ▸ Apps Script
 ├── menu/
-│   └── index.html          ← self-contained page; set MENU_ENDPOINT
-├── sheet-template/
-│   ├── _README.txt
-│   ├── hot-drinks.csv
-│   ├── cold-drinks.csv
-│   ├── cocktails-fruits.csv
-│   ├── cold-cakes.csv
-│   ├── waffles.csv
-│   ├── crepes.csv
-│   └── sweets-snacks.csv
-├── google-sites-embed.html ← <iframe> to paste into Google Sites
-└── SETUP.md                ← this file
+│   ├── index.html                    ← the page; edit MENU_ENDPOINT
+│   └── assets/
+│       ├── q-plus.placeholder.svg    ← brand mark for placeholder cards
+│       ├── q-plus.inline.svg         ← inlined into the page
+│       ├── arabic-typo-logo.svg      ← original (kept for reference)
+│       └── arabic-typo-logo.inline.svg
+├── google-sites-embed.html           ← <iframe> to paste into Google Sites
+└── sheet-template/                   ← CSV imports
+    ├── _README.txt                   ← how to build the Sheet from these
+    ├── settings.csv                  ← 2 columns: Key, Value
+    ├── images.csv                    ← photo spec (Topic, Tip)
+    ├── hot-drinks.csv
+    ├── cold-drinks.csv
+    ├── cocktails-fruits.csv
+    ├── cold-cakes.csv
+    ├── waffles.csv
+    ├── crepes.csv
+    └── sweets-snacks.csv
 ```
