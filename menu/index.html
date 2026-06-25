@@ -543,6 +543,7 @@
     }
     .state .icon { width: 72px; height: 72px; margin: 0 auto 14px; opacity: .8; }
     .state .icon.spin { animation: spin 2.4s linear infinite; }
+    .state .loading-logo { width: 58px; height: auto; margin: 0 auto 14px; }
     .state h2 {
       font-family: var(--arabic);
       font-weight: 700;
@@ -567,14 +568,7 @@
 <body>
 
   <div id="state" class="state" aria-live="polite">
-    <svg class="icon spin" viewBox="0 0 80 80" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="color: var(--qahwa-teal);" aria-hidden="true">
-      <rect x="10" y="18" width="60" height="44" rx="22" />
-      <path d="M28 40c0-5 4-9 9-9s9 4 9 9" />
-      <path d="M40 22c0-4 3-7 7-7" />
-      <path d="M40 22c0-4-3-7-7-7" />
-      <circle cx="40" cy="46" r="3" fill="currentColor" stroke="none" />
-      <path d="M40 56v6" />
-    </svg>
+    <img class="loading-logo" src="assets/symple-logo-animated.inline.svg" alt="" style="color: var(--qahwa-teal);">
     <h2>جاري تحميل القائمة…</h2>
     <p>Loading the menu</p>
   </div>
