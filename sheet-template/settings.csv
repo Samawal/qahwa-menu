@@ -18,3 +18,5 @@ tab.alias.بارد كيك,Cold Cakes
 tab.alias.وافل,Waffles
 tab.alias.كريب,Crêpes
 tab.alias.حلا و سناك,Sweets & Snacks
+tab.visible.كريب,false
+tab.visible.وافل,true

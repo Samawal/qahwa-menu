@@ -23,6 +23,24 @@ How to build the Sheet from scratch
   4. Drop your items into each category tab (or import the matching
      CSV from this folder).
 
+Hiding tabs via Settings (tab.visible.<name>)
+--------------------------------------------
+
+  Any tab can be hidden from the menu page without deleting it
+  from the workbook. Add a row to the Settings tab with:
+
+    Key                   | Value
+    tab.visible.كريب       | false
+    tab.visible.وافل       | true
+    tab.visible.حلا و سناك | false
+
+  False-ish values (case-insensitive) hide the tab:
+    false / no / off / 0 / x / hide / hidden / invisible
+
+  Anything else (or no row at all) keeps the tab visible. The
+  Products and IMAGES tabs are ALWAYS reference tabs and never
+  appear in the menu, regardless of this setting.
+
 How tab discovery works
 -----------------------
 

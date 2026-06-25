@@ -174,14 +174,17 @@ function readSettings(ss) {
 function discoverMenuTabs(ss, settings) {
   var all = ss.getSheets();
 
-  // Tabs we never treat as menu categories.
-  var SKIP_NAMES = { Settings: 1, IMAGES: 1, Products: 1 };
+  // Tabs that are ALWAYS reference/config, never menu categories.
+  // (Settings + IMAGES. Products is also reference, but it is hidden
+  // from the menu the same way ordinary tabs are: via tab.visible.<n>
+  // in the Settings tab.)
+  var ALWAYS_REFERENCE = { Settings: 1, IMAGES: 1 };
   var candidates = [];
   for (var i = 0; i < all.length; i++) {
     var sh  = all[i];
     var name = sh.getName();
     if (!name) continue;
-    if (SKIP_NAMES[name]) continue;
+    if (ALWAYS_REFERENCE[name]) continue;
     if (name.charAt(0) === '_') continue;
     if (/^template$/i.test(name)) continue;
     if (sh.getLastRow() < 2) continue;
