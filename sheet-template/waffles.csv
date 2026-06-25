@@ -1,6 +1,6 @@
-ItemArabic,ItemEnglish,Price,Description,ProductKey,Available,Tag
-كلاسيك وافل,Classic Waffle,9000,,,TRUE,
-وافل شوكليت,Chocolate Waffle,11000,,,TRUE,
-وافل نوتيلا,Nutella Waffle,12000,,,TRUE,الأكثر طلباً
-وافل لوتس,Lotus Waffle,12000,,,TRUE,
-وافل بستاشيو,Pistachio Waffle,13000,,,TRUE,
+ItemArabic,ItemEnglish,Price,Description,Available,Tag
+كلاسيك وافل,Classic Waffle,9000,,TRUE,
+وافل شوكليت,Chocolate Waffle,11000,,TRUE,
+وافل نوتيلا,Nutella Waffle,12000,,TRUE,الأكثر طلباً
+وافل لوتس,Lotus Waffle,12000,,TRUE,
+وافل بستاشيو,Pistachio Waffle,13000,,TRUE,

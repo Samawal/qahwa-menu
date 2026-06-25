@@ -40,7 +40,7 @@ Edit the Sheet → next page load shows the change. No redeploy needed.
 - **Bilingual RTL/LTR**: Arabic primary, English secondary, full right-to-left layout
 - **Dynamic tab discovery**: add/rename a tab in the Sheet → it appears in the menu automatically
 - **Header-driven columns**: rearrange columns freely, header names (Arabic or English) drive the data model
-- **Shared images**: one photo on a `Products` tab, referenced by `ProductKey` from every menu item that should show it
+- **Per-row images**: each menu row has an optional Image column — paste any URL (CDN, Imgur, Google Drive share link) and the page shows that photo. Empty cell = Q+ brand placeholder. The page handles Drive URL rewriting automatically.
 - **Graceful placeholders**: items without photos show the Q+ brand mark; items without prices still render; bad URLs swap silently to placeholder
 - **Brand-consistent fallback**: Q+ capsule mark serves as every fallback (no broken-image icons, no error messages to customers)
 - **Tab visibility**: hide any tab via `tab.visible.<name>` in the Settings tab — opt-in to hide, never opt-out to show

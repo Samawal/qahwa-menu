@@ -1,6 +1,6 @@
-ItemArabic,ItemEnglish,Price,Description,ProductKey,Available,Tag
-كريب شوكليت,Chocolate Crepe,9000,,,TRUE,
-كريب نوتيلا,Nutella Crepe,10000,,,TRUE,الأكثر طلباً
-كريب لوتس,Lotus Crepe,11000,,,TRUE,
-كريب بستاشيو,Pistachio Crepe,12000,,,TRUE,
-كريب ميكس شوكليت,Mix Chocolate Crepe,11000,,,TRUE,
+ItemArabic,ItemEnglish,Price,Description,Available,Tag
+كريب شوكليت,Chocolate Crepe,9000,,TRUE,
+كريب نوتيلا,Nutella Crepe,10000,,TRUE,الأكثر طلباً
+كريب لوتس,Lotus Crepe,11000,,TRUE,
+كريب بستاشيو,Pistachio Crepe,12000,,TRUE,
+كريب ميكس شوكليت,Mix Chocolate Crepe,11000,,TRUE,

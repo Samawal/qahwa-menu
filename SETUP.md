@@ -38,7 +38,6 @@ only **editing the Sheet** is needed to change the menu.
    - `Settings` — runtime config (brand, currency, tab order, aliases,
      visibility)
    - `IMAGES` — photo spec (size, format, hosting, Drive tips)
-   - `Products` — image catalog (one row per photo, referenced by key)
    - 7 category tabs — menu items
 8. To bulk-populate menu items: **File ▸ Import ▸ Upload** the matching
    CSV from `sheet-template/`. **Separator: Comma**, **"Replace current
@@ -172,27 +171,17 @@ The Sheet is the source of truth. Edits propagate automatically.
 
 ## Adding photos
 
-Photos live in the `Products` tab (one row per product):
+Each menu row has an optional `Image` column. Paste a URL in any of
+these forms and the page will show that photo on the card:
 
-```
-ProductKey    | Image                         | Caption (optional)
-cappuccino    | https://drive.google.com/..   | topped with cocoa
-spanish-latte | https://...                   |
-```
+- a plain `https://` URL (CDN, Imgur, your own hosting, etc.)
+- a Google Drive share link (must be **"Anyone with the link can view"**)
+- a bare Google Drive file ID
+- an empty cell — the page shows the Q+ brand placeholder
 
-Then reference from a menu row with the `ProductKey` column:
-
-```
-ItemArabic | Price | ProductKey
-كابتشينو   | 10000 | cappuccino
-فلتر       |  8000 | cappuccino   ← same photo, different menu item
-```
-
-**Resolution order** for an item's image:
-
-1. The menu row's own `Image` cell (rare one-off override)
-2. `Products[<productKey>].image` (the default workflow)
-3. Empty string → page shows the Q+ brand placeholder
+**Resolution** is direct: row's own `Image` cell, or empty if blank.
+No second tab to maintain. If your menu tab does not have an Image
+column, every card shows the placeholder — no error, no broken icons.
 
 See the `IMAGES` tab for size / format / Drive sharing tips.
 

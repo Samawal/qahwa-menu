@@ -50,32 +50,21 @@ How tab discovery works
 -----------------------
 
 
-The Products tab (image catalog) — primary workflow
----------------------------------------------------
+Adding photos to menu items
+----------------------------
 
-  After running bootstrapSheet() you have a "Products" tab with 3
-  columns:
+  Each menu row has an optional Image column. Paste a URL in any of
+  these forms and the page will show that photo on the card:
 
-    ProductKey | Image                       | Caption (optional)
-    espresso   | https://drive.google.com/.. | single shot, ceramic cup
-    cappuccino | https://...                 | topped with cocoa
-    latte      | https://...                 | tall glass
+    - a plain https:// URL (CDN, Imgur, your own hosting, etc.)
+    - a Google Drive share link (must be "Anyone with the link can view")
+    - a bare Google Drive file ID
+    - any other text or an empty cell — the page falls back to the
+      Q+ brand placeholder, so you can ship the menu before every
+      photo is uploaded.
 
-  Each row is ONE product (one photo). Menu items reference the
-  product by key in their ProductKey column. This means:
-
-    - One photo is reused by every menu item that should show it
-      (e.g. كابتشينو and كابتشينو دبل both use "cappuccino")
-    - Updating the photo in one place updates the whole menu
-    - You do NOT need an Image column on the menu tabs anymore
-
-  Resolution order when rendering a menu item:
-    1. The menu row's own Image cell (one-off override)
-    2. The ProductKey -> Products[productKey].image lookup
-    3. Empty -> the page shows the Q+ brand placeholder
-
-  If a menu item has no ProductKey and no Image, it just shows the
-  placeholder. That is fine — fill in keys as photos become available.
+  The Image column is optional. If your tab does not have it, every
+  card shows the Q+ placeholder — no error, no broken images.
 
 The IMAGES reference tab (photo spec)
 ---------------------------------------
