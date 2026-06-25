@@ -436,6 +436,20 @@ function bootstrapSheet() {
     { name: 'حلا و سناك',        seed: [] }
   ];
 
+  // Make sure every category tab has an Image column. Safe to run
+  // on tabs that already have one.
+  tabs.forEach(function (t) {
+    var sh2 = ss.getSheetByName(t.name);
+    if (sh2) {
+      var hdr2 = sh2.getRange(1, 1, 1, sh2.getLastColumn()).getValues()[0];
+      var hasImage2 = hdr2.some(function (h) { return /^(image|img|photo)$/i.test(String(h).trim()); });
+      if (!hasImage2 && sh2.getLastColumn() >= 1) {
+        var newCol = sh2.getLastColumn() + 1;
+        sh2.getRange(1, newCol).setValue('Image');
+      }
+    }
+  });
+
   tabs.forEach(function (t) {
     if (ss.getSheetByName(t.name)) return;
     var sh = ss.insertSheet(t.name);
@@ -452,4 +466,33 @@ function bootstrapSheet() {
       sh.getRange(2, 1, t.seed.length, headers.length).setValues(t.seed);
     }
   });
+
+
+  // ---- IMAGES guide tab (one-time, doesn't overwrite) -------------------
+  var imagesTabName = 'IMAGES';
+  if (!ss.getSheetByName(imagesTabName)) {
+    var im = ss.insertSheet(imagesTabName);
+    im.getRange(1, 1, 1, 2).setValues([['Topic', 'Tip']]).setFontWeight('bold');
+    im.setFrozenRows(1);
+    im.setColumnWidth(1, 220);
+    im.setColumnWidth(2, 720);
+    var tips = [
+      ['dimensions',       'Recommended: 800 × 600 px (4:3 aspect). The card crops with object-fit:cover so any aspect 4:3 ± 10% looks great.'],
+      ['max_file_size',    'Aim for ≤ 150 KB per image. Anything over 250 KB will load slowly on the cheap Syrian mobile data the kiosk and customers use.'],
+      ['format',           'JPG for photos (smallest), WebP if you can export it (best quality / size), PNG only if you need transparency. Avoid BMP and TIFF.'],
+      ['aspect_warning',   'Square or tall images look bad in the card — they crop to a thin strip. Re-shoot or re-export in landscape 4:3 before uploading.'],
+      ['hosting',          'Best options (in order): 1) GitHub Pages inside this repo under menu/assets/items/  2) Imgur or any public CDN  3) Google Drive (must be shared "Anyone with link can view") — the script auto-rewrites Drive URLs.'],
+      ['drive_instructions','In Google Drive, right-click the photo ▸ Share ▸ Change to "Anyone with the link" ▸ Viewer. Then copy the link and paste it into the Image cell. The script converts it to a thumbnail URL automatically.'],
+      ['naming',           'Use lowercase ASCII and dashes, no spaces. e.g. cappuccino-classic.jpg. This keeps file paths clean and predictable for future migrations.'],
+      ['do_not',           'Do NOT upload images with: watermarks baked in, text overlays (use the Description column instead), heavy filters that hide the actual drink, or screenshots of other apps.'],
+      ['cache_buster',     'If you change an image but the page still shows the old one, the image was cached. Hard-refresh (Cmd+Shift+R) or open in an incognito window.']
+    ];
+    im.getRange(2, 1, tips.length, 2).setValues(tips);
+    // Make the Tip column wrap and the Topic column bold for readability.
+    im.getRange(2, 1, tips.length, 1).setFontWeight('bold');
+    im.getRange(2, 2, tips.length, 1).setWrap(true);
+    // Walk past any tab the bootstrap creates later — put IMAGES first.
+    ss.setActiveSheet(im);
+    ss.moveActiveSheet(1);
+  }
 }

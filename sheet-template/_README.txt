@@ -26,6 +26,18 @@ How to build the Sheet from scratch
 How tab discovery works
 -----------------------
 
+
+The IMAGES reference tab
+------------------------
+
+  Running bootstrapSheet() once creates an "IMAGES" tab with two
+  columns (Topic, Tip) and 9 rows of guidance on photo size, format,
+  aspect ratio, hosting options, Drive URL handling, naming, and what
+  NOT to upload. Open it once and you've seen the whole spec — no need
+  to dig through docs. The page is also fully functional with no Image
+  column at all (the Q+ brand mark acts as placeholder for every item).
+
+
   * The "Settings" tab is skipped (it's configuration, not a menu).
   * Any other tab whose first row contains an ItemArabic or ItemEnglish
      column header is treated as a menu category.
