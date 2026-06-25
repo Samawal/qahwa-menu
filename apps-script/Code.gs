@@ -38,6 +38,7 @@ var DEFAULTS = {
   tabOrder: [],
   // English label overrides keyed by Arabic tab name.
   tabAliases: {
+
     'مشروبات ساخنة':     'Hot Drinks',
     'مشروبات باردة':     'Cold Drinks',
     'الكوكتيل والفواكه': 'Cocktails & Fruits',
@@ -45,8 +46,14 @@ var DEFAULTS = {
     'وافل':              'Waffles',
     'كريب':              'Crêpes',
     'حلا و سناك':        'Sweets & Snacks'
-  }
+  },
+  // Tab visibility overrides keyed by Arabic tab name.
+  // Value `false` (or 0 / no / off) hides the tab in the rendered
+  // menu page; anything else (default) keeps it visible.
+  // Settings tab key: tab.visible.<ArabicName>   e.g. tab.visible.وافل = false
+  hiddenTabs: {}
 };
+
 
 /* ============================================================
  * 2. COLUMN HEADER MAP
@@ -146,6 +153,11 @@ function readSettings(ss) {
       out.tabOrder = value.split(',').map(function (s) { return s.trim(); }).filter(Boolean);
     } else if (key.indexOf('tab.alias.') === 0) {
       out.tabAliases[key.slice('tab.alias.'.length)] = value;
+    } else if (key.indexOf('tab.visible.') === 0) {
+      // tab.visible.<ArabicName> = false   -> hide that tab
+      var vname = key.slice('tab.visible.'.length);
+      if (isFalsey(value)) out.hiddenTabs[vname] = true;
+      else delete out.hiddenTabs[vname];
     }
     // Unknown keys are silently ignored — keeps the sheet forward-compatible.
   });
@@ -203,6 +215,11 @@ function discoverMenuTabs(ss, settings) {
   cats.forEach(function (c) {
     if (!seen[c.name]) ordered.push(c);
   });
+
+  // Drop tabs that the Settings tab marked hidden
+  // (tab.visible.<ArabicName> = false / 0 / no / off).
+  var hidden = settings.hiddenTabs || {};
+  ordered = ordered.filter(function (c) { return !hidden[c.name]; });
 
   // Read items for each tab. Pass the products lookup so per-row
   // ProductKey columns can resolve to an image via the Products tab.
@@ -587,4 +604,13 @@ function bootstrapSheet() {
     ];
     pr.getRange(2, 1, sampleProducts.length, 3).setValues(sampleProducts);
   }
+}
+
+/* isFalsey: small helper so 'false / 0 / no / off / x' all
+ * hide a tab when present in tab.visible.<name> settings cells. */
+function isFalsey(v) {
+  if (typeof v === 'boolean') return v === false;
+  if (v === null || v === undefined) return false;
+  var s = String(v).trim().toLowerCase();
+  return s === 'false' || s === '0' || s === 'no' || s === 'off' || s === 'x';
 }
