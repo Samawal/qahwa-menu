@@ -59,6 +59,7 @@ var COLUMN_ALIASES = {
   itemEn:      ['ItemEnglish', 'English', 'En', 'الانجليزي', 'الإنجليزي', 'بالإنجليزي'],
   price:       ['Price', 'السعر', 'سعر'],
   description: ['Description', 'Desc', 'الوصف', 'وصف'],
+  image:       ['Image', 'Img', 'Photo', 'صورة', 'الصورة', 'رابط الصورة', 'URL'],
   available:   ['Available', 'متوفر', 'متاح', 'التوفر'],
   tag:         ['Tag', 'الوسم', 'وسم']
 };
@@ -283,6 +284,7 @@ function readItems(sheet) {
       itemEn:      nameEn,
       price:       toNumber(pick(row, fieldMap.price)),
       description: pick(row, fieldMap.description),
+      image:       normaliseImage(pick(row, fieldMap.image)),
       available:   toBool(pick(row, fieldMap.available)),
       tag:         pick(row, fieldMap.tag)
     });
@@ -294,7 +296,7 @@ function readItems(sheet) {
 function mapHeaders(headerRow) {
   var map = {
     itemAr: -1, itemEn: -1, price: -1,
-    description: -1, available: -1, tag: -1
+    description: -1, image: -1, available: -1, tag: -1
   };
   for (var field in COLUMN_ALIASES) {
     var aliases = COLUMN_ALIASES[field];
@@ -331,6 +333,32 @@ function pick(row, idx) {
  * 9. TYPE COERCION HELPERS
  * ============================================================ */
 
+/* normaliseImage: accept a wide range of cell values and return
+ * either a clean absolute URL or empty string. The page uses "" to
+ * mean "use placeholder". Recognised inputs:
+ *   - "https://..." or "http://..."        -> returned as-is
+ *   - "drive.google.com/...", "//...", "//lh3..."
+ *   - "//drive.google.com/file/d/ID/view"  -> turned into /uc?export=view&id=ID
+ *   - "/d/ID" or "ID" alone (Google Drive) -> turned into the public /thumbnail link
+ *   - any other text or empty              -> empty string (placeholder)
+ */
+function normaliseImage(v) {
+  var s = String(v == null ? "" : v).trim();
+  if (!s) return "";
+  // already absolute http(s)
+  if (/^https?:\/\//i.test(s)) return s;
+  // protocol-relative
+  if (/^\/\//.test(s)) return "https:" + s;
+  // bare Google Drive file id
+  var m;
+  if ((m = s.match(/^\/d\/([a-zA-Z0-9_-]{10,})/))) return "https://lh3.googleusercontent.com/d/" + m[1];
+  if ((m = s.match(/^[a-zA-Z0-9_-]{20,}$/)) && /^[a-zA-Z0-9_-]+$/.test(s)) return "https://lh3.googleusercontent.com/d/" + s;
+  // Google Drive sharing link -> thumbnail
+  if ((m = s.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/))) return "https://lh3.googleusercontent.com/d/" + m[1];
+  if ((m = s.match(/[?&]id=([a-zA-Z0-9_-]+)/))) return "https://lh3.googleusercontent.com/d/" + m[1];
+  return "";
+}
+
 function toNumber(v) {
   if (typeof v === 'number') return v;
   if (v === null || v === undefined || v === '') return 0;
@@ -357,7 +385,7 @@ function toBool(v) {
 
 function bootstrapSheet() {
   var ss      = SpreadsheetApp.getActiveSpreadsheet();
-  var headers = ['ItemArabic', 'ItemEnglish', 'Price', 'Description', 'Available', 'Tag'];
+  var headers = ['ItemArabic', 'ItemEnglish', 'Price', 'Description', 'Image', 'Available', 'Tag'];
 
   // ---- Settings tab ----
   var settingsName = 'Settings';
@@ -416,9 +444,10 @@ function bootstrapSheet() {
     sh.setColumnWidth(1, 220);
     sh.setColumnWidth(2, 200);
     sh.setColumnWidth(3, 80);
-    sh.setColumnWidth(4, 280);
-    sh.setColumnWidth(5, 90);
-    sh.setColumnWidth(6, 140);
+    sh.setColumnWidth(4, 260);
+    sh.setColumnWidth(5, 280);
+    sh.setColumnWidth(6, 90);
+    sh.setColumnWidth(7, 140);
     if (t.seed && t.seed.length) {
       sh.getRange(2, 1, t.seed.length, headers.length).setValues(t.seed);
     }

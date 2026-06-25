@@ -48,12 +48,24 @@ How column mapping works
      itemEn      ItemEnglish | English | En | الانجليزي | بالإنجليزي
      price       Price | السعر | سعر
      description Description | Desc | الوصف | وصف
+     image       Image | Img | Photo | صورة | الصورة | رابط الصورة | URL
      available   Available | متوفر | متاح | التوفر
      tag         Tag | الوسم | وسم
 
   Columns not in this list are ignored. Missing columns simply mean
   the corresponding field is empty (e.g. drop the Description column
   entirely and descriptions will be blank — no error).
+
+  The Image column accepts:
+    - a plain https:// URL (CDN, your own hosting, Imgur, etc.)
+    - a Google Drive share link, e.g. https://drive.google.com/file/d/<ID>/view
+    - a bare Drive file ID, e.g. 1aBcDeFgHiJkLmNoPqRsT
+    - any other text or an empty cell — the page will use a Q+ brand
+      mark as the placeholder, so you can ship the menu before every
+      photo is uploaded.
+
+  Make the Drive file public ("Anyone with the link can view") and
+  paste the link into the cell. The script handles the URL rewrite.
 
 How English labels work
 -----------------------
