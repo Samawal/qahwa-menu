@@ -894,11 +894,6 @@
 
   function render() {
     if (!state.data || !state.data.categories) return;
-    // Defensive client-side filter: any tab whose data-hidden attribute
-    // is "true" stays out of the tab strip and out of the section list.
-    state.data.categories = state.data.categories.filter(function (c) {
-      return !c.hidden;
-    });
     var app = document.getElementById("app");
     var st  = document.getElementById("state");
     st.hidden = true;
@@ -914,7 +909,6 @@
       b.type = "button";
       b.setAttribute("role", "tab");
       b.setAttribute("aria-selected", i === state.active ? "true" : "false");
-      if (cat.hidden) b.style.display = "none";
       b.innerHTML =
         '<span class="ar">' + escapeHTML(cat.name) + '</span>' +
         '<span class="en">' + escapeHTML(cat.nameEn || "") + '</span>';
@@ -943,14 +937,12 @@
     var main = document.getElementById("main");
     main.innerHTML = "";
     state.data.categories.forEach(function (cat, i) {
-      if (cat.hidden) return;
     if (i > 0) main.appendChild(buildBreak(cat.name));
       main.appendChild(buildSection(i, cat));
     });
   }
 
   function buildSection(i, cat) {
-    if (cat.hidden) return document.createComment('hidden:' + cat.name);
     var sec = document.createElement("section");
     sec.className = "cat-section";
     sec.id = "cat-" + i;

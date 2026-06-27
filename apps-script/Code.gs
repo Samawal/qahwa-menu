@@ -47,10 +47,6 @@ var DEFAULTS = {
     'كريب':              'Crêpes',
     'حلا و سناك':        'Sweets & Snacks'
   },
-  // Tab visibility overrides keyed by Arabic tab name.
-  // Value `false` (or 0 / no / off) hides the tab in the rendered
-  // menu page; anything else (default) keeps it visible.
-  // Settings tab key: tab.visible.<ArabicName>   e.g. tab.visible.وافل = false
   hiddenTabs: {}
 };
 
@@ -153,8 +149,7 @@ function readSettings(ss) {
     } else if (key.indexOf('tab.alias.') === 0) {
       out.tabAliases[key.slice('tab.alias.'.length)] = value;
     } else if (key.indexOf('tab.visible.') === 0) {
-      // tab.visible.<ArabicName> = false   -> hide that tab
-      var vname = key.slice('tab.visible.'.length);
+      var vname = key.slice('tab.visible.'.length).toLowerCase();
       if (isFalsey(value)) out.hiddenTabs[vname] = true;
       else delete out.hiddenTabs[vname];
     }
@@ -180,7 +175,7 @@ function discoverMenuTabs(ss, settings) {
     var sh  = all[i];
     var name = sh.getName();
     if (!name) continue;
-    if (ALWAYS_REFERENCE[name]) continue;
+    if (ALWAYS_REFERENCE[name.toUpperCase()]) continue;
     if (name.charAt(0) === '_') continue;
     if (/^template$/i.test(name)) continue;
     if (sh.getLastRow() < 2) continue;
@@ -216,9 +211,8 @@ function discoverMenuTabs(ss, settings) {
   });
 
   // Drop tabs that the Settings tab marked hidden
-  // (tab.visible.<ArabicName> = false / 0 / no / off).
   var hidden = settings.hiddenTabs || {};
-  ordered = ordered.filter(function (c) { return !hidden[c.name]; });
+  ordered = ordered.filter(function (c) { return !hidden[c.name.toLowerCase()]; });
 
   // Read items for each tab.
   ordered.forEach(function (c) {
